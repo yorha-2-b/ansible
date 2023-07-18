@@ -1,0 +1,5 @@
+- name: Pull {{ image_name }} image
+  become: false
+  containers.podman.podman_image:
+    name: "{{ image_name }}"
+    state: present

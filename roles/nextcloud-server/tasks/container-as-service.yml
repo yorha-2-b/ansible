@@ -1,0 +1,52 @@
+---
+- name: Run {{ container_name }} container and generate systemd unit
+  become: false
+  containers.podman.podman_container:
+    name: "{{ container_name }}"
+    state: started
+    image: "{{ image_name }}"
+    detach: true
+    tty: true
+    ports:
+      - 80:80
+      - 8080:8080
+      - 8443:8443
+    volumes:
+     - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
+     - /run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
+    env: 
+      WATCHTOWER_DOCKER_SOCKET_PATH : /run/user/1000/docker.sock
+    generate_systemd:
+      names: true
+      path: /home/{{ user }}/.config/systemd/user
+      restart_policy: always
+      new: true
+
+- name: Check if {{ user }} user is lingering
+  stat:
+    path: "/var/lib/systemd/linger/{{ user }}"
+  register: user_lingering
+
+- name: Enable lingering
+  command: "loginctl enable-linger {{ user }}"
+  when: not user_lingering.stat.exists
+
+- name: Run daemon-reload
+  become: false
+  ignore_errors: true
+  no_log: true
+  ansible.builtin.shell: |
+    systemctl --user daemon-reload
+    systemctl --user status container-{{ container_name }}.service
+
+- name: Stop {{ container_name }} container
+  become: false
+  containers.podman.podman_container:
+    name: "{{ container_name }}"
+    state: absent
+
+- name: Enable and run {{ container_name }} service
+  become: false
+  ignore_errors: true
+  ansible.builtin.shell: |
+    systemctl --user enable --now container-{{ container_name }}.service

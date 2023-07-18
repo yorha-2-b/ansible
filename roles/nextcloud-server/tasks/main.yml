@@ -1,0 +1,6 @@
+---
+- name: Include task to pull image
+  include_tasks: pull-image.yml
+
+- name: Include tasks to run container as a rootless service
+  include_tasks: container-as-service.yml

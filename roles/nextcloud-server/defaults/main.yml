@@ -1,0 +1,5 @@
+---
+# defaults file for nextcloud-server
+image_name: docker.io/nextcloud/all-in-one:latest
+container_name: nextcloud-aio-mastercontainer
+user: ansible
