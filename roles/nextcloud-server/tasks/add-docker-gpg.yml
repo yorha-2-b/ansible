@@ -1,0 +1,19 @@
+# TODO: only create new GPG file if there is no old one
+
+# - name: Check if GPG key exists
+#   ansible.builtin.stat:
+#     path: " {{ docker_gpg_path }} "
+#   register: gpg_key
+
+- name: Remove docker GPG key
+  ansible.builtin.file: 
+    path: /etc/apt/keyrings/docker.gpg
+    state: absent
+
+- name: Install docker GPG key
+  ansible.builtin.shell:
+    cmd: |
+      sudo install -m 0755 -d /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+      sudo chmod a+r /etc/apt/keyrings/docker.gpg
+#   when: not gpg_key.stat.exists

@@ -1,6 +1,34 @@
 ---
-- name: Include task to pull image
-  include_tasks: pull-image.yml
+- name: Add docker repository
+  ansible.builtin.include_tasks: add-docker-repo.yml
 
-- name: Include tasks to run container as a rootless service
-  include_tasks: container-as-service.yml
+- name: Install packages
+  ansible.builtin.include_tasks: install-package.yml
+  loop:
+    - ca-certificates
+    - curl
+    - gnupg
+
+- name: Add docker gpg key
+  ansible.builtin.include_tasks: add-docker-gpg.yml
+
+- name: Install docker packages
+  ansible.builtin.include_tasks: install-package.yml
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-buildx-plugin
+    - docker-compose-plugin
+
+- name: Run service
+  ansible.builtin.include_tasks: run-service.yml
+
+- name: Pull image
+  ansible.builtin.include_tasks: pull-image.yml
+
+- name: Run nextcloud container
+  ansible.builtin.include_tasks: run-container.yml
+#- name: Include task to pull image
+#  include_tasks: pull-image.yml
+

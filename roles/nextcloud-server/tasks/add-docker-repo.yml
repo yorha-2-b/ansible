@@ -1,0 +1,7 @@
+# TODO: Make idempotent by using apt_repository module and fix repo url
+---
+- name: Add docker repository
+  ansible.builtin.shell:
+    cmd: > 
+      echo 
+      "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null

@@ -1,5 +1,4 @@
 - name: Pull {{ image_name }} image
-  become: false
-  containers.podman.podman_image:
+  community.docker.docker_image:
     name: "{{ image_name }}"
-    state: present
+    source: pull

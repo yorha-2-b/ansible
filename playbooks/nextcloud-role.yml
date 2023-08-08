@@ -1,0 +1,5 @@
+---
+- name: Nextcloud in container playbook
+  hosts: ansible-node3
+  roles:
+    - nextcloud-server

@@ -1,9 +1,9 @@
 ---
-- name: Run {{ container_name }} container and generate systemd unit
+- name: Run {{ container_name }} container
   become: false
   containers.podman.podman_container:
     name: "{{ container_name }}"
-    state: started
+    state: created
     image: "{{ image_name }}"
     detach: true
     tty: true
@@ -11,16 +11,21 @@
       - 80:80
       - 8080:8080
       - 8443:8443
+    security_opt: "label=disable"
     volumes:
      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
      - /run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
     env: 
-      WATCHTOWER_DOCKER_SOCKET_PATH : /run/user/1000/docker.sock
-    generate_systemd:
-      names: true
-      path: /home/{{ user }}/.config/systemd/user
-      restart_policy: always
-      new: true
+      # WATCHTOWER_DOCKER_SOCKET_PATH : /run/user/1000/docker.sock
+      WATCHTOWER_DOCKER_SOCKET_PATH: /var/run/docker.sock
+
+- name: Generate {{ container_name }} container unit file
+  become: false
+  containers.podman.podman_generate_systemd:
+    name: "{{ container_name }}"
+    dest: /home/{{ user }}/.config/systemd/user
+    restart_policy: always
+    new: true
 
 - name: Check if {{ user }} user is lingering
   stat:
